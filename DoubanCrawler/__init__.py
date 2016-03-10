@@ -2,6 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 from doubanClass import DoubanMovie250
+from MyDatabaseClass import MyDatabase
 
 if __name__ == '__main__':
     headers = {
@@ -17,14 +18,18 @@ if __name__ == '__main__':
     
     mainarea = soup.select('.grid_view')[0]
     
-    cot = 0
+    doubanDB = MyDatabase(host='localhost',user='root',passwd='',db='doubanMovie',port=3306,charset='utf8')
     
+#    doubanDB.exeDelete('movie','251 252 253')
+    
+    cot = 0
+      
     for movie in mainarea:
         cot += 1
         if cot % 2 == 0:
-            movieObj = DoubanMovie250(movie)
+            movieObj = DoubanMovie250(movie,doubanDB)
             #movieObj.show_info() 
             movieObj.save_to_database()
             print("----------------------")
-        
-    print(cot)
+     
+    doubanDB.connClose()

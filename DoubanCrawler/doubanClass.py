@@ -1,7 +1,8 @@
 from stringHandleByMyself import stripWithParamString
 
 class DoubanMovie250(object):
-    def __init__(self,movie_li_html):
+    def __init__(self,movie_li_html,dbObj):
+        self.database = dbObj
         self.movie_item = movie_li_html.select('.item')[0]
         self.main_role = ''
         self.birth = ''
@@ -10,7 +11,13 @@ class DoubanMovie250(object):
         self.tag = ''
         #开局直接运行解析内核
         self.detailParseCoreRun()
-          
+    
+    @property
+    def rank(self):
+        em_div = self.movie_item.find('em')
+        num = em_div.text
+        return num
+              
     @property
     def introduction_url(self):
         href_list = self.movie_item.select('a[href]')
@@ -80,6 +87,7 @@ class DoubanMovie250(object):
 
     def show_info(self):
         #信息输出
+        print('Rank:\t',self.rank)
         print('PicSrc:\t',self.pic_src)
         print('Title:\t',self.title)
         print('Introd_url:\t',self.introduction_url)
@@ -92,22 +100,34 @@ class DoubanMovie250(object):
         print('Birth:\t',self.birth)
     
     def save_to_database(self):
-        __author__ = 'luyang'
-        #导入pymysql的包
-        import pymysql
-        #获取一个数据库连接，注意如果是UTF-8类型的，需要制定数据库
         try:
-            conn=pymysql.connect(host='localhost',user='root',passwd='',db='doubanMovie',port=3306,charset='utf8')
-            cur=conn.cursor()#获取一个游标
-            cur.execute("insert into movie(picsrc,title,introduce_url,score,brief_comment,mainrole,area,tag,director,birth)" 
-                            "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (self.pic_src,self.title,self.introduction_url,self.score,
-                         self.comment,self.main_role,self.area,self.tag,self.director,self.birth)) 
-            conn.commit()
+            self.database.cur.execute("insert into movie(rank,picsrc,title,introduce_url,score,brief_comment,mainrole,area,tag,director,birth) " 
+                                      "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                            (self.rank,self.pic_src,self.title,self.introduction_url,self.score,
+                             self.comment,self.main_role,self.area,self.tag,self.director,self.birth))
+            
+            self.database.conn.commit()
+            print('《',self.title,'》','更新成功')
+        except:
+            print('《',self.title,'》','更新失败')
+            
+#         __author__ = 'luyang'
+#         #导入pymysql的包
+#         import pymysql
+#         #获取一个数据库连接，注意如果是UTF-8类型的，需要制定数据库
+#         try:
+#             conn=pymysql.connect(host='localhost',user='root',passwd='',db='doubanMovie',port=3306,charset='utf8')
+#             cur=conn.cursor()#获取一个游标
+#             cur.execute("insert into movie(rank,picsrc,title,introduce_url,score,brief_comment,mainrole,area,tag,director,birth)" 
+#                             "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+#                         (self.rank,self.pic_src,self.title,self.introduction_url,self.score,
+#                          self.comment,self.main_role,self.area,self.tag,self.director,self.birth)) 
+#             conn.commit()
 #             cur.execute('select * from movie')
 #             data = cur.fetchall()
 #             print(data)
-        except  Exception :
-            print("数据库连接发生异常")
-    
-    
+#             print('《',self.title,'》','更新成功')
+#         except  Exception :
+#             print('《',self.title,'》','更新失败')
+         
+        
