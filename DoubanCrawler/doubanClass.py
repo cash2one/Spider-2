@@ -5,9 +5,9 @@ class DoubanMovie250(object):
         self.movie_item = movie_li_html.select('.item')[0]
         self.main_role = ''
         self.birth = ''
-        self.area_list = []
+        self.area = ''
         self.director = ''
-        self.tag_list = []
+        self.tag = ''
         #开局直接运行解析内核
         self.detailParseCoreRun()
           
@@ -64,7 +64,8 @@ class DoubanMovie250(object):
         for area in area_list:
             if area:
                 area = area.strip('\n')
-                self.area_list.append(area)
+                area += ','
+                self.area += area
             else:
                 break
         #标签列表生成，首先去换行符
@@ -72,7 +73,8 @@ class DoubanMovie250(object):
         for tag in tag_list:
             if tag:
                 tag = tag.strip('\n')
-                self.tag_list.append(tag)
+                tag += ','
+                self.tag += tag
             else:
                 break
 
@@ -85,11 +87,27 @@ class DoubanMovie250(object):
         print('Comment:\t',self.comment)
         print('Director:\t',self.director)
         print('MainRole:\t',self.main_role)
-        print('Area_list:\t',self.area_list)
-        print('Tag_list:\t',self.tag_list)
+        print('Area:\t',self.area)
+        print('Tag:\t',self.tag)
         print('Birth:\t',self.birth)
     
     def save_to_database(self):
-        pass
+        __author__ = 'luyang'
+        #导入pymysql的包
+        import pymysql
+        #获取一个数据库连接，注意如果是UTF-8类型的，需要制定数据库
+        try:
+            conn=pymysql.connect(host='localhost',user='root',passwd='',db='doubanMovie',port=3306,charset='utf8')
+            cur=conn.cursor()#获取一个游标
+            cur.execute("insert into movie(picsrc,title,introduce_url,score,brief_comment,mainrole,area,tag,director,birth)" 
+                            "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (self.pic_src,self.title,self.introduction_url,self.score,
+                         self.comment,self.main_role,self.area,self.tag,self.director,self.birth)) 
+            conn.commit()
+#             cur.execute('select * from movie')
+#             data = cur.fetchall()
+#             print(data)
+        except  Exception :
+            print("数据库连接发生异常")
     
     

@@ -23,7 +23,8 @@ if __name__ == '__main__':
         cot += 1
         if cot % 2 == 0:
             movieObj = DoubanMovie250(movie)
-            movieObj.show_info() 
+            #movieObj.show_info() 
+            movieObj.save_to_database()
             print("----------------------")
         
     print(cot)
