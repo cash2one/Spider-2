@@ -1,4 +1,6 @@
-from stringHandleByMyself import stripWithParamString
+#coding:utf-8
+from mytools.stringHandleByMyself import stripWithParamString
+import pymysql
 
 class DoubanMovie250(object):
     def __init__(self,movie_li_html,dbObj):
@@ -15,7 +17,7 @@ class DoubanMovie250(object):
     @property
     def rank(self):
         em_div = self.movie_item.find('em')
-        num = em_div.text
+        num = int(em_div.text)
         return num
               
     @property
@@ -43,8 +45,11 @@ class DoubanMovie250(object):
     
     @property    
     def comment(self):
-        comment = self.movie_item.select('.inq')[0].text
-        return comment
+        try:
+            comment_string = self.movie_item.select('.inq')[0].text
+        except:
+            comment_string = ''
+        return comment_string
     
     @property    
     def score(self):
@@ -108,8 +113,8 @@ class DoubanMovie250(object):
             
             self.database.conn.commit()
             print('《',self.title,'》','更新成功')
-        except:
-            print('《',self.title,'》','更新失败')
+        except pymysql.InternalError:
+            pass
             
 #         __author__ = 'luyang'
 #         #导入pymysql的包
@@ -131,3 +136,4 @@ class DoubanMovie250(object):
 #             print('《',self.title,'》','更新失败')
          
         
+

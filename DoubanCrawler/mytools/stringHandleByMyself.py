@@ -1,4 +1,5 @@
-#Ô­×Ö·û´®¹¦ÄÜº¯Êıstrip¿ÉÒÔÍÊÈ¥Ä³×ÖÄ¸£¬ÏÖÒÔÄ³×Ö·û´®µÄĞÎÊ½ÍÊÈ¥£¨ĞÎ²Î±ä»¯£©
+#coding:utf-8
+#åŸå­—ç¬¦ä¸²åŠŸèƒ½å‡½æ•°stripå¯ä»¥è¤ªå»æŸå­—æ¯ï¼Œç°ä»¥æŸå­—ç¬¦ä¸²çš„å½¢å¼è¤ªå»ï¼ˆå½¢å‚å˜åŒ–ï¼‰
 def stripWithParamString(string_origin,strip_string):
     temp_string = string_origin
     for char in strip_string:
