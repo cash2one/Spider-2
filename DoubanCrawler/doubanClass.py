@@ -43,11 +43,8 @@ class DoubanMovie250(object):
     
     @property    
     def comment(self):
-        try:
-            comment_string = self.movie_item.select('.inq')[0].text
-        except:
-            comment_string = ''
-        return comment_string
+        comment = self.movie_item.select('.inq')[0].text
+        return comment
     
     @property    
     def score(self):

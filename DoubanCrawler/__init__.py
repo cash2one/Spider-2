@@ -10,31 +10,26 @@ if __name__ == '__main__':
        'user-agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0'           
        }
     
+    url = 'https://movie.douban.com/top250'
+    
+    response = requests.get(url,headers=headers)
+    
+    soup = BeautifulSoup(response.text)
+    
+    mainarea = soup.select('.grid_view')[0]
+    
     doubanDB = MyDatabase(host='localhost',user='root',passwd='',db='doubanMovie',port=3306,charset='utf8')
-        
-    #    doubanDB.exeDelete('movie','251 252 253')
     
-    cotEx = 0
+#    doubanDB.exeDelete('movie','251 252 253')
     
-    while cotEx < 10:
-        url = 'https://movie.douban.com/top250?start=' + str(cotEx*25) + '&filter='
-        
-        cotEx += 1
-        
-        response = requests.get(url,headers=headers)
-        
-        soup = BeautifulSoup(response.text)
-        
-        mainarea = soup.select('.grid_view')[0]
-        
-        cot = 0
-          
-        for movie in mainarea:
-            cot += 1
-            if cot % 2 == 0:
-                movieObj = DoubanMovie250(movie,doubanDB)
-                #movieObj.show_info() 
-                movieObj.save_to_database()
-                print("----------------------")
-         
+    cot = 0
+      
+    for movie in mainarea:
+        cot += 1
+        if cot % 2 == 0:
+            movieObj = DoubanMovie250(movie,doubanDB)
+            #movieObj.show_info() 
+            movieObj.save_to_database()
+            print("----------------------")
+     
     doubanDB.connClose()
