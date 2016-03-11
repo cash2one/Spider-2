@@ -3,7 +3,12 @@ from mytools.stringHandleByMyself import stripWithParamString
 import pymysql
 
 class DoubanMovie250(object):
+    '''
+        This class is to catch douban.com movie's info
+        and save them into mysql database. 
+    '''
     def __init__(self,movie_li_html,dbObj):
+        #bind method 
         self.database = dbObj
         self.movie_item = movie_li_html.select('.item')[0]
         self.main_role = ''
