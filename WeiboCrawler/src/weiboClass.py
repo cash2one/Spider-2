@@ -10,4 +10,7 @@ class Weibo(object):
         self.time = ''
         #包括评论作者和时间及内容组成的大字符串
         self.comment = ''
+    
+    def save_to_db(self):
+        pass
         

@@ -1,23 +1,37 @@
 #coding:utf-8
-import requests,re
+import requests
 from bs4 import BeautifulSoup
+from mytools.stringHandleByMyself import stripWithParamString
 
 class User(object):
-    def __init__(self,user_account_id,headers,dbObj):
+    def __init__(self,user_account_id,headers):
         self.userInfoLink =  'http://weibo.cn/' + user_account_id + '/info'
-        self.database = dbObj
         self.account_id = user_account_id
         self.username = ''
         self.sex = 1
         self.area = ''
-        self.authentication = ''
-        self.birthday = ''
-        self.abstract_info = ''
-        self.tag = ''
-        self.workExp = ''
+        self.authentication = None
+        self.birthday = None
+        self.abstract_info = None
+        self.tag_list = []
+        self.tag_string = ''
+        self.daren_info = None
         response = requests.get(url=self.userInfoLink,headers=headers)
         self.soup = BeautifulSoup(response.text)
     
+    def show_in_cmd(self):
+        print('account_id :\t\t',self.account_id)
+        print('head_pic_url :\t\t',self.head_pic_url)
+        print('username :\t\t',self.username)
+        print('sex :\t\t\t',self.sex)
+        print('area :\t\t\t',self.area)
+        print('authentication :\t',self.authentication)
+        print('birthday :\t\t',self.birthday)
+        print('abstract_info :\t\t',self.abstract_info)
+        print('tag_string :\t\t',self.tag_string)
+        print('tag_list :\t\t',self.tag_list)
+        print('daren_info :\t\t',self.daren_info)
+        
     @property
     def head_pic_url(self):
         head_pic = self.soup.find('img')
@@ -26,21 +40,77 @@ class User(object):
     
     def detailParseCoreRun(self):
         detail_list = self.soup.select('.c')
-        match_string = detail_list[2].text
-#         n = re.match(r'^([0-9a-zA-Z\_]{3})陆([0-9a-zA-Z\_]{3,8})$', match_string)
-#         print(n)
-#         print(n.groups())
-#         m = re.match(r'^([\u4E00-\u9fa5]{3})-([\u4E00-\u9fa5]{3,8})$','陆你好-养你好葛琳')
-#         print(m.groups())
-#         >>> m = re.match(r'^(\d{3})-(\d{3,8})$', '010-12345')
-#         >>> m
-#         <_sre.SRE_Match object; span=(0, 9), match='010-12345'>
-#         >>> m.group(0)
-#         '010-12345'
-#         >>> m.group(1)
-#         '010'
-#         >>> m.group(2)
-#         '12345'
+        tag_href_list = detail_list[2].select('a')
+        tag_href_list = tag_href_list[:-1]
+        for tag_href in tag_href_list:
+            tag = {}
+            tag['tag_name'] = tag_href.text
+            tag['url'] = 'http://weibo.cn/' + str(tag_href['href'])
+            self.tag_list.append(tag)
+            self.tag_string += (str(tag['tag_name'])+',')
+        match_string = str(detail_list[2])
+        match_string = stripWithParamString(match_string, '<div class="c">')
+        match_string = match_string[:-10]
+        detail_list = match_string.split('<br/>')
+        def set_name(name):
+            self.username = name
+        def set_sex(sex):
+            if sex=='女':
+                self.sex = 0
+        def set_area(area):
+            self.area = area
+        def set_abstract_info(abstract_info):
+            self.abstract_info = abstract_info
+        def set_authentication(authentication):
+            self.authentication = authentication
+        def set_birthday(birthday):
+            self.birthday = birthday
+        def set_daren_info(daren_info):
+            self.daren_info = daren_info    
+        def void_func(arg):
+            pass
+        def set_tag(tag):
+            pass
+            
+        str_vs_func_dict = {
+                    '昵称':       set_name,
+                    '认证':       set_authentication,
+                    '性别':       set_sex,
+                    '地区':       set_area,
+                    '简介':       set_abstract_info,
+                    '生日':       set_birthday,
+                    '标签':       set_tag,
+                    '达人':       set_daren_info,
+                }
         
-    def save_to_db(self):
-        pass
+        for info in detail_list:
+            try:
+                key_value = info.split(':')
+                func = str_vs_func_dict[key_value[0]]
+                func(key_value[1])
+            except:
+                pass
+                #print('Exception:',info,'match failed')
+            
+    def save_to_db(self,dbObj):
+        #保存用户数据
+        try:
+            dbObj.cur.execute(
+                "insert into user(account_id,area,username,sex,authentication,birthday,abstract_info,tag,head_pic_url)"
+                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (self.account_id,self.area,self.username,self.sex,self.authentication,self.birthday,self.abstract_info,self.tag_string,self.head_pic_url)
+            )
+            dbObj.conn.commit()
+        except:
+            print('User save error!')
+        #保存标签数据    
+        for tag in self.tag_list:
+            try:
+                dbObj.cur.execute(
+                                  "insert into tag(url,tag_name)"
+                                  "values (%s,%s)",
+                                  (tag['url'],tag['tag_name'])
+                              )
+                dbObj.conn.commit()
+            except:
+                print('Tag save error!')
