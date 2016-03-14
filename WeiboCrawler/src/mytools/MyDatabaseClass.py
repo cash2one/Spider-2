@@ -16,13 +16,12 @@ class MyDatabase(object):
         except:
             print("Mysql connects error!")
         
-    def showData(self,table_name_string):
+    def getData(self,table_name_string):
         #展示某表
         sql =  'select * from ' + table_name_string
         self.cur.execute(sql)
         data = self.cur.fetchall()
-        for element in data:
-            print(element)
+        return data
         
     def exeUpdate(self, sql):  
         # 更新语句，可执行Update，Insert语句
