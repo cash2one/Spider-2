@@ -23,7 +23,10 @@ class User(object):
         self.headers = headers
         response = requests.get(url=self.userInfoLink,headers=self.headers)
         self.soup = BeautifulSoup(response.text)
-    
+        self.detailParseCoreRun()
+        self.homepageParseCoreRun()
+        
+        
     def show_in_cmd(self):
         print('account_id :\t\t',self.account_id)
         print('fans_cot :\t\t',self.fans_cot)
@@ -127,6 +130,9 @@ class User(object):
             print('ERROR:detail_list:',detail_list)
                     
     def save_to_db(self,dbObj):
+        if self.weibo_cot == 888888:
+            print('weibo_cot = 888888')
+            return
         #保存用户数据
         try:
             dbObj.cur.execute(
@@ -141,9 +147,9 @@ class User(object):
         for tag in self.tag_list:
             try:
                 dbObj.cur.execute(
-                                  "insert into tag(url,tag_name)"
-                                  "values (%s,%s)",
-                                  (tag['url'],tag['tag_name'])
+                  "insert into tag(url,tag_name)"
+                  "values (%s,%s)",
+                  (tag['url'],tag['tag_name'])
                               )
                 dbObj.conn.commit()
             except:

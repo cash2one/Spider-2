@@ -2,6 +2,7 @@
 
 from mytools.MyDatabaseClass import MyDatabase
 from main_func import *
+import time
 
 if __name__ == '__main__':
     headers = {
@@ -10,6 +11,21 @@ if __name__ == '__main__':
        }
     
     weiboDB = MyDatabase(host='localhost',user='root',passwd='',db='weibo',port=3306,charset='utf8')
+#     while 1:
+#         CrawlSpecificUserFansInfo('2691260383',headers,weiboDB,start=50)
     
-    while 1:
-        CrawlSpecificUserFansInfo('2691260383',headers,weiboDB,start=20)
+    CrawlSpecificUserWeibosInfo('2138751751',headers,weiboDB)
+    
+    #CrawlMyFocusWeibo(headers,weiboDB)
+    
+
+#     weiboDB.cur.execute(
+#         "insert into time(time)"
+#                   "values (%s)",
+#                   ('2016-01-26 10:23:58')
+#                         )
+#     weiboDB.conn.commit()
+
+#     local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+#     print(local_time)
+#     print(type(local_time))
