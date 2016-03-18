@@ -1,6 +1,6 @@
-#codingL:utf-8
+#coding:utf-8
 
-import pymysql
+import pymysql,time
 from commentClass import Comment
 from userClass import User
 import main_func
@@ -12,6 +12,11 @@ class Weibo(object):
         self.weibo_div = weibo_div
         self.id = ''
         self.userID = userID
+        if userID != '':
+            res = userDB.isExist('user','account_id',userID)
+            if not res:
+                print('sb')
+                main_func.UserCatchCore(headers,userID,userDB)
         self.origin_userID = ''
         self.content = ''
         self.create_time = ''
@@ -20,9 +25,23 @@ class Weibo(object):
         self.comment_cot = -1
         self.platform = ''
         self.via_reason = ''
-        self.topic = ''
         self.detail_parse_core()
     
+    def show_in_cmd(self):
+        print('++++++++++++++å¾®åšä¿¡æ¯+++++++++++++')
+        print('id:\t\t\t',self.id)
+        print('userID:\t\t\t',self.userID)
+        print('origin_userID:\t\t',self.origin_userID)
+        print('via_reason:\t\t',self.via_reason)
+        print('content:\t\t',self.content)
+        print('create_time:\t\t',self.create_time)
+        print('flavor_cot:\t\t',self.flavor_cot)
+        print('via_cot:\t\t',self.via_cot)
+        print('comment_cot:\t\t',self.comment_cot)
+        print('platform:\t\t',self.platform)
+        print('++++++++++++++å¾®åšä¿¡æ¯+++++++++++++')
+        
+        
     def create_comment(self,weiboID,authorID,content,db):
         commentObj = Comment(weiboID,authorID,content)
         commentObj.save_to_database(db)
@@ -30,35 +49,69 @@ class Weibo(object):
     def create_user(self,user_account_id,headers,db):
         userObj = User(user_account_id,self.headers)
         userObj.save_to_db(db)
-
-    def create_topic(self):
-        pass
         
     def detail_parse_core(self):
-        self.id = self.weibo_div['id']
+        try:
+            self.id = self.weibo_div['id']
+        except:
+            print(self.weibo_div)
         author_area = self.weibo_div.select('.nk')
         if author_area!=[]:
+            #ç­‰äº[]æ—¶è¡¨æ˜åœ¨æ¢æµ‹æŸäººä¸»é¡µ
             user_homepage_url = author_area[0]['href']
-            print('input:',user_homepage_url)
             self.userID = main_func.GetUserAccountID(user_homepage_url,self.headers)
         self.content = self.weibo_div.select('.ctt')[0].text
+        #-------------------------
+        last_div = self.weibo_div.contents[-1]
+        detail_list = last_div.contents[1:]
+        info_list = []
+        for info in detail_list:
+            if info !='\xa0\xa0' and info!='\xa0' and info!=' ':
+                info_list.append(info)
+        #å¾—åˆ°ç‚¹èµè½¬å‘è¯„è®ºæ•°ï¼ˆéåŸæ–‡ï¼‰
+        cot_list = info_list[-5:]
+        #print(cot_list)
+        def get_flavor_cot(string):
+            self.flavor_cot = int(string[2])
+        def get_via_cot(string):
+            self.via_cot = int(string[3])
+        def get_comment_cot(string):
+            self.comment_cot = int(string[3])
+        def void_func(string):
+            pass
+        def get_resource_and_time(string):
+            str_list = string.split('\xa0')
+            self.platform = str_list[1][2:]
+            #å‘è¡¨æ—¶é—´ä»¥åä¿®æ”¹ ä¸è¦å¿˜è®°ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
+             
+        dict = {
+                  'èµ':  get_flavor_cot,
+                  'è½¬':  get_via_cot,
+                  'è¯„':  get_comment_cot,
+                  'æ”¶':  void_func,
+              }
+        for info in cot_list[:-1]:
+            detail = info.text
+            key = detail[0]
+            func = dict[key]
+            func(detail)
+         
+        last_info = cot_list[-1].text
+        get_resource_and_time(last_info)
+        #---------------------------------------------
         via_list = self.weibo_div.select('.cmt')
+        self.origin_userID = self.userID
         if len(via_list)==4:
-            #´ËÇé¿öÊÊÓÃÓÚ×ª·¢µÄÎ¢²©
-#             origin_user_homepage_url = via_list[0].select('a')[0]['href']
-#             origin_userID = main_func.GetUserAccountID(origin_user_homepage_url,self.headers)
-#             main_func.UserCatchCore(self.headers, origin_userID, self.userDB)
-            #ct_class = self.weibo_div.select('.ct')
-            last_div = self.weibo_div.contents[-1]
-            detail_list = last_div.contents[1:]
-            info_list = []
-            for info in detail_list:
-                if info !='\xa0\xa0' and info!='\xa0' and info!=' ':
-                    info_list.append(info)
-            #µÃµ½×ª·¢ÀíÓÉ×Ö·û´®        
+            #æ­¤æƒ…å†µé€‚ç”¨äºè½¬å‘çš„å¾®åš
+            origin_user_homepage_url = via_list[0].select('a')[0]['href']
+            origin_userID = main_func.GetUserAccountID(origin_user_homepage_url,self.headers)
+            print("\nåŸåˆ›ç”¨æˆ·æœç´¢ä¸­")
+            main_func.UserCatchCore(self.headers, origin_userID, self.userDB)
+            self.origin_userID = origin_userID
+            
+            #å¾—åˆ°è½¬å‘ç†ç”±å­—ç¬¦ä¸²        
             via_reason_list = info_list[:-5]
             via_reason_string = ''
-            print(via_reason_list)
             for info in via_reason_list:
                 try:
                     info['href']
@@ -67,44 +120,20 @@ class Weibo(object):
                     pass
                 via_reason_string += info
             self.via_reason = via_reason_string
-            #µÃµ½µãÔŞ×ª·¢ÆÀÂÛÊı£¨·ÇÔ­ÎÄ£©
-            cot_list = info_list[-5:]
-            def get_flavor_cot(self):
-                pass
-            def get_via_cot(self):
-                pass
-            def get_comment_cot(self):
-                pass
-            def get_create_time(self):
-                pass
-            def get_resource_and_resource(self):
-                pass
-            def void_func(self):
-                pass
             
-#             dict={
-#                   u'ÔŞ':  get_flavor_cot,
-#                   u'×ª':  get_via_cot,
-#                   u'ÆÀ':  get_comment_cot,
-#                   u'ÊÕ':  void_func,
-#                   u'½ñ':  get_resource_and_resource,
-#                   }
-            for info in cot_list:
-                print(info.text)
-                j = info.text.encode('utf-8')
-                print(j)
-                for x in j:
-                    print(x)
-                #print(str(info.text)[0])
-                
-                #print(type(i))
-#                 via_reason += 
-                
-#             div = ct_class.parent
-#             print(div)
-#             print(type(div))
         print('------------')
         
     def save_to_db(self,db):
-        pass
+        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        try:
+            db.cur.execute(
+                "insert into weibos(create_time,id,userID,content,flavor_cot,via_cot,comment_cot,origin_userID,via_reason,platform)"
+                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (now,self.id,self.userID,self.content,self.flavor_cot,self.via_cot,self.comment_cot,self.origin_userID,self.via_reason,self.platform)
+            )
+            db.conn.commit()
+            self.show_in_cmd()
+            print('save weibos successfully')
+        except pymysql.InternalError:
+            pass
         

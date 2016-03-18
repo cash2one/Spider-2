@@ -2,6 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 from mytools.stringHandleByMyself import stripWithParamString
+import time
 
 class User(object):
     def __init__(self,user_account_id,headers):
@@ -28,6 +29,7 @@ class User(object):
         
         
     def show_in_cmd(self):
+        print('**************用户信息**************')
         print('account_id :\t\t',self.account_id)
         print('fans_cot :\t\t',self.fans_cot)
         print('weibo_cot :\t\t',self.weibo_cot)
@@ -42,6 +44,7 @@ class User(object):
         print('tag_string :\t\t',self.tag_string)
         print('tag_list :\t\t',self.tag_list)
         print('daren_info :\t\t',self.daren_info)
+        print('**************用户信息**************')
         
     @property
     def head_pic_url(self):
@@ -130,19 +133,21 @@ class User(object):
             print('ERROR:detail_list:',detail_list)
                     
     def save_to_db(self,dbObj):
-        if self.weibo_cot == 888888:
-            print('weibo_cot = 888888')
-            return
+#         if self.weibo_cot == 888888:
+#             print('weibo_cot = 888888')
+#             return
+        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         #保存用户数据
         try:
             dbObj.cur.execute(
-                "insert into user(account_id,area,username,sex,authentication,birthday,abstract_info,tag,head_pic_url,fans_cot,weibo_cot,focus_cot)"
-                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (self.account_id,self.area,self.username,self.sex,self.authentication,self.birthday,self.abstract_info,self.tag_string,self.head_pic_url,self.fans_cot,self.weibo_cot,self.focus_cot)
+                "insert into user(create_time,account_id,area,username,sex,authentication,birthday,abstract_info,tag,head_pic_url,fans_cot,weibo_cot,focus_cot)"
+                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (now,self.account_id,self.area,self.username,self.sex,self.authentication,self.birthday,self.abstract_info,self.tag_string,self.head_pic_url,self.fans_cot,self.weibo_cot,self.focus_cot)
             )
             dbObj.conn.commit()
-        except:
-            print('User save error!')
+            self.show_in_cmd()
+        except Exception as e:
+            print(e)
         #保存标签数据    
         for tag in self.tag_list:
             try:
@@ -152,5 +157,5 @@ class User(object):
                   (tag['url'],tag['tag_name'])
                               )
                 dbObj.conn.commit()
-            except:
-                print('Tag save error!')
+            except Exception as e:
+                print(e)

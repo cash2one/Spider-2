@@ -16,9 +16,13 @@ class MyDatabase(object):
         except:
             print("Mysql connects error!")
         
-    def getData(self,table_name_string):
+    def getData(self,table_name_string,row_name,limit=-1,order_by_row_name=''):
         #展示某表
-        sql =  'select * from ' + table_name_string
+        sql =  'select '+ row_name +' from ' + table_name_string
+        if limit != -1:
+            sql +=( ' limit ' + str(limit) )
+        if order_by_row_name != '':
+            sql += ( ' order by ' + order_by_row_name )
         self.cur.execute(sql)
         data = self.cur.fetchall()
         return data
@@ -39,6 +43,13 @@ class MyDatabase(object):
                 print('id:',eachID,' has deleted successfully!')
             except:
                 print('id:',eachID,"deleted error!")
+    
+    def isExist(self,table_name_string,row_name,obj):
+        data = self.getData(table_name_string, row_name)
+        for item in data:
+            if obj==item[0]:
+                return True
+        return False
     
     def connClose(self):  
         # 关闭所有连接

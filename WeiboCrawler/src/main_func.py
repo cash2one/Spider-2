@@ -6,18 +6,28 @@ from userClass import User
 from mytools.stringHandleByMyself import stripWithParamString
 
 def CrawlSpecificUserWeibosInfo(userID,headers,db):
+    res = db.isExist('user','account_id',userID)
+    if not res:
+        UserCatchCore(headers,userID,db)
     profile_url = 'http://weibo.cn/'+ userID +'/profile'
     response = requests.get(url=profile_url,headers=headers)
     soup = BeautifulSoup(response.text)
     weibo_list_area = soup.select('.c')
     weibo_list_area = weibo_list_area[:-2]
-    print('list length = ', len(weibo_list_area))
+    length = len(weibo_list_area)
+    print('list length = ', length)
+    if length is 0:
+        print(soup)
+    status = 0
     for weibo_div in weibo_list_area:
-#         id = weibo['id']
-#         author = weibo.a.text
         weiboObj = Weibo(weibo_div,headers,db,userID)
-        weiboObj.save_to_db(db)
-
+        try:
+            weiboObj.save_to_db(db)
+            status = 1
+        except Exception as e:
+            print(e)
+    return status    
+    
 def CrawlMyFocusWeibo(headers,db):
     url = 'http://weibo.cn/?tf=5_009&vt=4'
     response = requests.get(url=url,headers=headers)
@@ -30,9 +40,9 @@ def CrawlMyFocusWeibo(headers,db):
         weiboObj.save_to_db(db)
     
 def UserCatchCore(headers,user_account_id,db):
-    data = db.getData('user')
+    data = db.getData('user','account_id')
     for item in data:
-        if item[0]==user_account_id:
+        if item==user_account_id:
             print('该用户已经存过')
             return
     userObj = User(user_account_id,headers)
@@ -43,7 +53,6 @@ def UserCatchCore(headers,user_account_id,db):
         print('weibo:',userObj.weibo_cot)
         print('foucs:',userObj.focus_cot)
         return
-    userObj.show_in_cmd()
     userObj.save_to_db(db)
     
 def GetUserAccountID(user_homepage_url,headers):
@@ -86,20 +95,19 @@ def fans_page_catch(fans_page_url,headers,db_user):
             fans_account_id = GetUserAccountID(fans_homepage_url,headers)
             UserCatchCore(headers, fans_account_id, db_user)
             print('----------------')
-    except:
+    except Exception as err:
         print(soup)
+        print(err)
         
-def CrawlSpecificUserFansInfo(userID,headers,db,start):
+def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
     start_page_url = 'http://weibo.cn/'+ userID +'/fans'
-    cot = start
-    while cot<101:
+    cot = start 
+    while cot<end+1:
         print('Page------',cot)
         fans_page_url = start_page_url + '?&page=' + str(cot)
         print(fans_page_url)
         fans_page_catch(fans_page_url,headers,db)
         cot += 1
-        if cot==101:
-            cot = 50
 
 def RemoveFans(fansID,headers):
     removeUrl = 'http://weibo.cn/attention/remove?act=removec&uid='+ fansID +'&rl=1&st=0e83c9'
