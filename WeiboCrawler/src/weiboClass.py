@@ -89,6 +89,8 @@ class Weibo(object):
                   '转':  get_via_cot,
                   '评':  get_comment_cot,
                   '收':  void_func,
+                  '置':  void_func,
+                  '删':  void_func,
               }
         for info in cot_list[:-1]:
             detail = info.text

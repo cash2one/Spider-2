@@ -19,10 +19,10 @@ class MyDatabase(object):
     def getData(self,table_name_string,row_name,limit=-1,order_by_row_name=''):
         #展示某表
         sql =  'select '+ row_name +' from ' + table_name_string
-        if limit != -1:
-            sql +=( ' limit ' + str(limit) )
         if order_by_row_name != '':
             sql += ( ' order by ' + order_by_row_name )
+        if limit != -1:
+            sql +=( ' limit ' + str(limit) )
         self.cur.execute(sql)
         data = self.cur.fetchall()
         return data

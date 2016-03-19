@@ -1,9 +1,10 @@
 #coding:utf-8
-import requests
+import requests,time
 from bs4 import BeautifulSoup
 from weiboClass import Weibo
 from userClass import User
 from mytools.stringHandleByMyself import stripWithParamString
+from mytools.emailClass import Email
 
 def CrawlSpecificUserWeibosInfo(userID,headers,db):
     res = db.isExist('user','account_id',userID)
@@ -16,9 +17,16 @@ def CrawlSpecificUserWeibosInfo(userID,headers,db):
     weibo_list_area = weibo_list_area[:-2]
     length = len(weibo_list_area)
     print('list length = ', length)
-    if length is 0:
-        print(soup)
+    print(response)
     status = 0
+    if length is 0:
+        print(response)
+    if length is 14:
+        #被恶意指向微博广场
+        return 2
+    if length<10 and length>1:
+        print('此人微博少于十条')
+        status = 3
     for weibo_div in weibo_list_area:
         weiboObj = Weibo(weibo_div,headers,db,userID)
         try:
@@ -100,7 +108,7 @@ def fans_page_catch(fans_page_url,headers,db_user):
         print(err)
         
 def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
-    start_page_url = 'http://weibo.cn/'+ userID +'/fans'
+    start_page_url = 'http://weibo.cn/'+ userID +'s'
     cot = start 
     while cot<end+1:
         print('Page------',cot)
@@ -113,3 +121,18 @@ def RemoveFans(fansID,headers):
     removeUrl = 'http://weibo.cn/attention/remove?act=removec&uid='+ fansID +'&rl=1&st=0e83c9'
     requests.get(url=removeUrl,headers=headers)
     
+def send_email(author,content):
+    local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    receiver = '2733641279@qq.com'  
+    sender = '15262057539@163.com'    
+    subject = '惠普捕获到【'+ author + '】的微博了！快去看看吧！' + local_time
+    host = 'smtp.163.com'  
+    port = 25
+    username = '15262057539@163.com'  
+    password = 'luyang716'   
+    print('content:',content)
+    emailObj = Email(sender,receiver,subject,content)
+    emailObj.conn_server(host,port)
+    emailObj.login(username, password)
+    emailObj.send()
+    emailObj.close()
