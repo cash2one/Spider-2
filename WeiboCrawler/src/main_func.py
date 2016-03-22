@@ -6,12 +6,13 @@ from userClass import User
 from mytools.stringHandleByMyself import stripWithParamString
 from mytools.emailClass import Email
 
-def CrawlSpecificUserWeibosInfo(userID,headers,db):
-    print('+++++++Catch ' + userID +'++++++++++\n')
+def CrawlSpecificUserWeibosInfo(userID,headers,db,page):
+    page = str(page)
+    print('\n+++++++Catch' + userID +'++++++page:'+ page +' ++++')
     res = db.isExist('user','account_id',userID)
     if not res:
         UserCatchCore(headers,userID,db)
-    profile_url = 'http://weibo.cn/'+ userID +'/profile'
+    profile_url = 'http://weibo.cn/'+ userID +'/profile?page='+page
     response = requests.get(url=profile_url,headers=headers)
     soup = BeautifulSoup(response.text)
 #     print(type(soup.html))
@@ -22,14 +23,19 @@ def CrawlSpecificUserWeibosInfo(userID,headers,db):
     print('list length = ', length)
     ret = {'status':0,'content':''}
     if length is 0:
-        print('被指向登陆页')
-        pass
+        pl = soup.select('#pagelist')
+        if not pl:
+            print('被指向登陆页')
+            ret['status'] = 4
+            return ret
+        else:
+            print('页数越界')
     if length > 10:
         #被恶意指向微博广场
         ret['status'] = 2
         return ret
-    if length<10 and length>1:
-        print('此人微博少于十条')
+    if length<10 and length>=0:
+        print('本页:',page,'微博少于十条，是最后一页')
         ret['status'] = 3
     for weibo_div in weibo_list_area:
         print('--------')
@@ -39,11 +45,14 @@ def CrawlSpecificUserWeibosInfo(userID,headers,db):
             continue
         weiboObj = Weibo(weibo_div,headers,db,userID)
         try:
-            weiboObj.save_to_db(db)
-            ret['status'] = 1
-            ret['content'] = str(soup.html)
+            if weiboObj.save_to_db(db):
+                print('微博保存成功')
+                if ret['status'] != 3:
+                    ret['status'] = 1
+                ret['content'] = str(soup.html)
         except Exception as e:
             print(e)
+            print('微博保存失败')
     return ret    
 
     
@@ -134,7 +143,7 @@ def send_email(author,content,subtype,logObj):
     local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     receiver = '965606089@qq.com'
     sender = '15262057539@163.com'    
-    subject = '惠普捕获到【'+ author + '】的微博了！快去看看吧！' + local_time
+    subject = '【'+ author + '】又发微博了！快去看看吧！' + local_time
     host = 'smtp.163.com'  
     port = 25
     username = '15262057539@163.com'  

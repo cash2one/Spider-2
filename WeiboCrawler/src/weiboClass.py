@@ -68,9 +68,13 @@ class Weibo(object):
         for info in detail_list:
             if info !='\xa0\xa0' and info!='\xa0' and info!=' ':
                 info_list.append(info)
+        #print('info_list length:',len(info_list))
         #得到点赞转发评论数（非原文）
-        cot_list = info_list[-5:]
-        #print(cot_list)
+        index = -5
+        if self.headers['cookie_user_id']==self.userID:
+            index = -7
+        cot_list = info_list[index:]
+        print(cot_list)
         def get_flavor_cot(string):
             self.flavor_cot = int(string[2])
         def get_via_cot(string):
@@ -81,7 +85,11 @@ class Weibo(object):
             pass
         def get_resource_and_time(string):
             str_list = string.split('\xa0')
-            self.platform = str_list[1][2:]
+            try:
+                self.platform = str_list[1][2:]
+            except Exception as e:
+                #没有微博来源只有时间的情况做异常处理
+                print(e)
             #发表时间以后修改 不要忘记！！！！！！！！
              
         dict = {
@@ -92,12 +100,17 @@ class Weibo(object):
                   '置':  void_func,
                   '删':  void_func,
               }
+        
+#         for info in cot_list[:-1]:
+#             print(info.text)
+            
         for info in cot_list[:-1]:
             detail = info.text
             key = detail[0]
             func = dict[key]
             func(detail)
-         
+                
+                
         last_info = cot_list[-1].text
         get_resource_and_time(last_info)
         #---------------------------------------------
@@ -127,6 +140,10 @@ class Weibo(object):
         
     def save_to_db(self,db):
         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        if self.via_cot == -1:
+            print('请检查detailcore()中字典下方你的info_list是否正确')
+            print(self.weibo_div)
+            return False
         try:
             db.cur.execute(
                 "insert into weibos(create_time,id,userID,content,flavor_cot,via_cot,comment_cot,origin_userID,via_reason,platform)"
@@ -136,6 +153,7 @@ class Weibo(object):
             db.conn.commit()
             self.show_in_cmd()
             print('save weibos successfully')
+            return True
         except pymysql.InternalError:
             pass
-        
+        return False
