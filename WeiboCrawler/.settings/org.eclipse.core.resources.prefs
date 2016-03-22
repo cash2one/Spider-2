@@ -5,5 +5,6 @@ encoding//src/main.py=utf-8
 encoding//src/main_func.py=utf-8
 encoding//src/mytools/MyDatabaseClass.py=utf-8
 encoding//src/mytools/emailClass.py=utf-8
+encoding//src/mytools/fileClass.py=utf-8
 encoding//src/userClass.py=utf-8
 encoding//src/weiboClass.py=utf-8

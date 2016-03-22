@@ -7,34 +7,45 @@ from mytools.stringHandleByMyself import stripWithParamString
 from mytools.emailClass import Email
 
 def CrawlSpecificUserWeibosInfo(userID,headers,db):
+    print('+++++++Catch ' + userID +'++++++++++\n')
     res = db.isExist('user','account_id',userID)
     if not res:
         UserCatchCore(headers,userID,db)
     profile_url = 'http://weibo.cn/'+ userID +'/profile'
     response = requests.get(url=profile_url,headers=headers)
     soup = BeautifulSoup(response.text)
+#     print(type(soup.html))
+#     print(str(soup.html))
     weibo_list_area = soup.select('.c')
     weibo_list_area = weibo_list_area[:-2]
     length = len(weibo_list_area)
     print('list length = ', length)
-    print(response)
-    status = 0
+    ret = {'status':0,'content':''}
     if length is 0:
-        print(response)
-    if length is 14:
+        print('被指向登陆页')
+        pass
+    if length > 10:
         #被恶意指向微博广场
-        return 2
+        ret['status'] = 2
+        return ret
     if length<10 and length>1:
         print('此人微博少于十条')
-        status = 3
+        ret['status'] = 3
     for weibo_div in weibo_list_area:
+        print('--------')
+        id = weibo_div['id']
+        if db.isExist('weibos','id',id):
+            print('The weibo has been saved.')
+            continue
         weiboObj = Weibo(weibo_div,headers,db,userID)
         try:
             weiboObj.save_to_db(db)
-            status = 1
+            ret['status'] = 1
+            ret['content'] = str(soup.html)
         except Exception as e:
             print(e)
-    return status    
+    return ret    
+
     
 def CrawlMyFocusWeibo(headers,db):
     url = 'http://weibo.cn/?tf=5_009&vt=4'
@@ -48,11 +59,10 @@ def CrawlMyFocusWeibo(headers,db):
         weiboObj.save_to_db(db)
     
 def UserCatchCore(headers,user_account_id,db):
-    data = db.getData('user','account_id')
-    for item in data:
-        if item==user_account_id:
-            print('该用户已经存过')
-            return
+    res = db.isExist('user','account_id',user_account_id)
+    if res:
+        print('The user has been saved')
+        return
     userObj = User(user_account_id,headers)
     if (userObj.fans_cot<10 and userObj.weibo_cot<10):
         RemoveFans(user_account_id, headers)
@@ -104,7 +114,6 @@ def fans_page_catch(fans_page_url,headers,db_user):
             UserCatchCore(headers, fans_account_id, db_user)
             print('----------------')
     except Exception as err:
-        print(soup)
         print(err)
         
 def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
@@ -121,18 +130,20 @@ def RemoveFans(fansID,headers):
     removeUrl = 'http://weibo.cn/attention/remove?act=removec&uid='+ fansID +'&rl=1&st=0e83c9'
     requests.get(url=removeUrl,headers=headers)
     
-def send_email(author,content):
+def send_email(author,content,subtype,logObj):
     local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    receiver = '2733641279@qq.com'  
+    receiver = '965606089@qq.com'
     sender = '15262057539@163.com'    
     subject = '惠普捕获到【'+ author + '】的微博了！快去看看吧！' + local_time
     host = 'smtp.163.com'  
     port = 25
     username = '15262057539@163.com'  
     password = 'luyang716'   
-    print('content:',content)
-    emailObj = Email(sender,receiver,subject,content)
-    emailObj.conn_server(host,port)
-    emailObj.login(username, password)
-    emailObj.send()
-    emailObj.close()
+    try:
+        emailObj = Email(sender,receiver,subject,content,subtype=subtype,logObj=logObj)
+        emailObj.conn_server(host,port)
+        emailObj.login(username, password)
+        emailObj.send()
+        emailObj.close()
+    except Exception as err:
+        print(err)

@@ -107,7 +107,7 @@ class Weibo(object):
             #此情况适用于转发的微博
             origin_user_homepage_url = via_list[0].select('a')[0]['href']
             origin_userID = main_func.GetUserAccountID(origin_user_homepage_url,self.headers)
-            print("\n原创用户搜索中")
+            print("\nOrigin user searching:")
             main_func.UserCatchCore(self.headers, origin_userID, self.userDB)
             self.origin_userID = origin_userID
             
