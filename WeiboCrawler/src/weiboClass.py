@@ -74,7 +74,6 @@ class Weibo(object):
         if self.headers['cookie_user_id']==self.userID:
             index = -7
         cot_list = info_list[index:]
-        print(cot_list)
         def get_flavor_cot(string):
             self.flavor_cot = int(string[2])
         def get_via_cot(string):
@@ -99,6 +98,7 @@ class Weibo(object):
                   '收':  void_func,
                   '置':  void_func,
                   '删':  void_func,
+                  '取':  void_func,
               }
         
 #         for info in cot_list[:-1]:

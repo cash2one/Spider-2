@@ -67,19 +67,20 @@ def CrawlMyFocusWeibo(headers,db):
         weiboObj = Weibo(weibo_div,headers,db)
         weiboObj.save_to_db(db)
     
-def UserCatchCore(headers,user_account_id,db):
+def UserCatchCore(headers,user_account_id,db,clear_fans_choice=False):
     res = db.isExist('user','account_id',user_account_id)
     if res:
         print('The user has been saved')
         return
     userObj = User(user_account_id,headers)
-    if (userObj.fans_cot<10 and userObj.weibo_cot<10):
-        RemoveFans(user_account_id, headers)
-        print(userObj.username,'已清理')
-        print('fans:',userObj.fans_cot)
-        print('weibo:',userObj.weibo_cot)
-        print('foucs:',userObj.focus_cot)
-        return
+    if clear_fans_choice:
+        if (userObj.fans_cot<10 and userObj.weibo_cot<10):
+            RemoveFans(user_account_id, headers)
+            print(userObj.username,'已清理')
+            print('fans:',userObj.fans_cot)
+            print('weibo:',userObj.weibo_cot)
+            print('foucs:',userObj.focus_cot)
+            return
     userObj.save_to_db(db)
     
 def GetUserAccountID(user_homepage_url,headers):
@@ -126,7 +127,7 @@ def fans_page_catch(fans_page_url,headers,db_user):
         print(err)
         
 def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
-    start_page_url = 'http://weibo.cn/'+ userID +'s'
+    start_page_url = 'http://weibo.cn/'+ userID +'/fans'
     cot = start 
     while cot<end+1:
         print('Page------',cot)
@@ -141,13 +142,13 @@ def RemoveFans(fansID,headers):
     
 def send_email(author,content,subtype,logObj):
     local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    receiver = '965606089@qq.com'
-    sender = '15262057539@163.com'    
+    sender = '965606089@qq.com'
+    receiver = 'luyangaini@vip.qq.com'    
     subject = '【'+ author + '】又发微博了！快去看看吧！' + local_time
-    host = 'smtp.163.com'  
-    port = 25
-    username = '15262057539@163.com'  
-    password = 'luyang716'   
+    host = 'smtp.qq.com'  
+    port = 587
+    username = sender
+    password = 'tqannmxzubpsbfjc'   
     try:
         emailObj = Email(sender,receiver,subject,content,subtype=subtype,logObj=logObj)
         emailObj.conn_server(host,port)

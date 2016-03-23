@@ -27,7 +27,6 @@ class User(object):
         self.detailParseCoreRun()
         self.homepageParseCoreRun()
         
-        
     def show_in_cmd(self):
         print('**************用户信息**************')
         print('account_id :\t\t',self.account_id)
@@ -133,9 +132,9 @@ class User(object):
             print('ERROR:detail_list:',detail_list)
                     
     def save_to_db(self,dbObj):
-#         if self.weibo_cot == 888888:
-#             print('weibo_cot = 888888')
-#             return
+        if self.weibo_cot == 888888:
+            print('weibo_cot = 888888')
+            return
         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         #保存用户数据
         try:
