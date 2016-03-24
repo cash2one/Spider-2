@@ -17,12 +17,12 @@ cookie_list = ('SUHB=0pHhOPHjFBWmE9; _T_WM=bef2c515f1bcb67425331213a5262a1b; gsi
     '_T_WM=9c937db8943c8dc9bd404af31c6a9034; gsid_CTandWM=4u2lb1311aM2iATFPEn7coH4V9v; SUB=_2A2579JxADeTxGeNG41cV9ifJwzWIHXVZFiQIrDV6PUJbrdANLUmmkW1LHeshEnRyH0kdGBqKrCXW8zRtL3wGFQ..')
 
 headers_luyang = {
-            'cookie':'SUHB=0pHhOPHjFBWmE9; _T_WM=bef2c515f1bcb67425331213a5262a1b; gsid_CTandWM=4udVa35c1dW73448sBMwdbi7q6b; SUB=_2A2579JvyDeRxGeRI4lMT9i7Pwz-IHXVZFiW6rDV6PUJbrdANLXDykW1LHesATt0ju3lSVjv4AYl5bImahXQjpw..',
+            'cookie':'SUHB=0pHhOPHjFBWmE9; _T_WM=bef2c515f1bcb67425331213a5262a1b; gsid_CTandWM=4udVa35c1dW73448sBMwdbi7q6b; SUB=_2A2579h9tDeRxGeRI4lMT9i7Pwz-IHXVZGKElrDV6PUJbrdANLUv2kW1LHetUTXME6KB2kvAjU18PpbyLbiGYBA..',
             'cookie_user_id':'2691260383',
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0'           
        }
 headers_kidlin = {
-            'cookie':'_T_WM=9c937db8943c8dc9bd404af31c6a9034; gsid_CTandWM=4u2lb1311aM2iATFPEn7coH4V9v; SUB=_2A2579JxADeTxGeNG41cV9ifJwzWIHXVZFiQIrDV6PUJbrdANLUmmkW1LHeshEnRyH0kdGBqKrCXW8zRtL3wGFQ..',
+            'cookie':'_T_WM=9c937db8943c8dc9bd404af31c6a9034; gsid_CTandWM=4u2lb1311aM2iATFPEn7coH4V9v; SUB=_2A2579h_XDeTxGeNG41cV9ifJwzWIHXVZGKGfrDV6PUJbrdANLVrBkW1LHetI9q14HWFoRAqzd80tByOK6IR9LQ..',
             'cookie_user_id':'5885469589',
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0'           
                   }
@@ -40,6 +40,21 @@ def switch_cookie():
         headers = headers_list[0]
     return
 
+ret = {'status':-1}
+cot = 0
+while 1:
+    ret = CrawlSpecificUserWeibosInfo('5261878873',headers,weiboDB,cot)
+    if ret['status'] == 4:
+        switch_cookie()
+    else:
+        cot += 1
+        
+
+
+#CrawlSpecificUserFansInfo('5261878873', headers, weiboDB)
+
+
+'''
 
 sql = "select account_id from user where username='xgl'"
 weiboDB.cur.execute(sql)
@@ -63,4 +78,4 @@ for i in data:
 
 print(delete_string)
 weiboDB.exeDelete('weibos', 'id', delete_string)
-    
+    '''

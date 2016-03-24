@@ -25,6 +25,7 @@ class Weibo(object):
         self.comment_cot = -1
         self.platform = ''
         self.via_reason = ''
+        self.submit_time = ''
         self.detail_parse_core()
     
     def show_in_cmd(self):
@@ -39,6 +40,7 @@ class Weibo(object):
         print('via_cot:\t\t',self.via_cot)
         print('comment_cot:\t\t',self.comment_cot)
         print('platform:\t\t',self.platform)
+        print('submit_time:\t\t',self.submit_time)
         print('++++++++++++++微博信息+++++++++++++')
         
         
@@ -84,6 +86,8 @@ class Weibo(object):
             pass
         def get_resource_and_time(string):
             str_list = string.split('\xa0')
+            print('time:',str_list[0])
+            self.submit_time = str_list[0]
             try:
                 self.platform = str_list[1][2:]
             except Exception as e:
@@ -118,7 +122,11 @@ class Weibo(object):
         self.origin_userID = self.userID
         if len(via_list)==4:
             #此情况适用于转发的微博
-            origin_user_homepage_url = via_list[0].select('a')[0]['href']
+            try:
+                origin_user_homepage_url = via_list[0].select('a')[0]['href']
+            except:
+                print('该微博已删除')
+                return
             origin_userID = main_func.GetUserAccountID(origin_user_homepage_url,self.headers)
             print("\nOrigin user searching:")
             main_func.UserCatchCore(self.headers, origin_userID, self.userDB)
@@ -140,15 +148,16 @@ class Weibo(object):
         
     def save_to_db(self,db):
         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        self.create_time = now
         if self.via_cot == -1:
             print('请检查detailcore()中字典下方你的info_list是否正确')
             print(self.weibo_div)
             return False
         try:
             db.cur.execute(
-                "insert into weibos(create_time,id,userID,content,flavor_cot,via_cot,comment_cot,origin_userID,via_reason,platform)"
-                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (now,self.id,self.userID,self.content,self.flavor_cot,self.via_cot,self.comment_cot,self.origin_userID,self.via_reason,self.platform)
+                "insert into weibos(submit_time,create_time,id,userID,content,flavor_cot,via_cot,comment_cot,origin_userID,via_reason,platform)"
+                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (self.submit_time,now,self.id,self.userID,self.content,self.flavor_cot,self.via_cot,self.comment_cot,self.origin_userID,self.via_reason,self.platform)
             )
             db.conn.commit()
             self.show_in_cmd()

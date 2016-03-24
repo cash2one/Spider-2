@@ -7,11 +7,11 @@ from mytools.fileClass import File
 
 
 #'5885469589',
-WeiboId_list = ('5885469589','2691260383','5360104594','5842071290')
+WeiboId_list = ('5261878873','5885469589','2691260383','5360104594','5842071290')
 #WeiboId_list = ('5885469589',)
 
 weiboDB = MyDatabase(host='localhost',user='root',passwd='',db='weibo',port=3306,charset='utf8')
-
+ 
 cookie_list = ('SUHB=0pHhOPHjFBWmE9; _T_WM=bef2c515f1bcb67425331213a5262a1b; gsid_CTandWM=4udVa35c1dW73448sBMwdbi7q6b; SUB=_2A2579JvyDeRxGeRI4lMT9i7Pwz-IHXVZFiW6rDV6PUJbrdANLXDykW1LHesATt0ju3lSVjv4AYl5bImahXQjpw..',
 
     '_T_WM=9c937db8943c8dc9bd404af31c6a9034; gsid_CTandWM=4u2lb1311aM2iATFPEn7coH4V9v; SUB=_2A2579JxADeTxGeNG41cV9ifJwzWIHXVZFiQIrDV6PUJbrdANLUmmkW1LHeshEnRyH0kdGBqKrCXW8zRtL3wGFQ..')
@@ -71,7 +71,7 @@ while 1:
     for userID in WeiboId_list:
         print(userID)
         ret = CrawlSpecificUserWeibosInfo(userID, headers, weiboDB,page=0)
-        if ret['status'] is 1:
+        if ret['content']:
             sql = "SELECT username FROM user WHERE account_id=" + userID
             weiboDB.cur.execute(sql)
             author_name_list = weiboDB.cur.fetchall()

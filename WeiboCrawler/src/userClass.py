@@ -128,7 +128,8 @@ class User(object):
                 except:
                     pass
                     #print('Exception:',info,'match failed')
-        except:
+        except Exception as e:
+            print(e)
             print('ERROR:detail_list:',detail_list)
                     
     def save_to_db(self,dbObj):
