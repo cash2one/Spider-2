@@ -6,6 +6,7 @@ from mytools.MyDatabaseClass import MyDatabase
 from mytools.fileClass import File
 
 
+
 #'5885469589',
 WeiboId_list = ('5885469589','2691260383','5360104594','5842071290')
 #WeiboId_list = ('5885469589',)
