@@ -137,7 +137,7 @@ class DoubanMovie250(object):
 #             data = cur.fetchall()
 #             print(data)
 #             print('《',self.title,'》','更新成功')
-#         except  Exception :
+#         except  Exception :*+
 #             print('《',self.title,'》','更新失败')
          
         

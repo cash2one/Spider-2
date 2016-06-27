@@ -1,10 +1,9 @@
-#coding: utf-8  
+#coding:utf-8  
 from mytools.emailClass import Email
 import time
 from main_func import *
-from mytools.MyDatabaseClass import MyDatabase
+from MyDatabaseClass import MyDatabase
 from mytools.fileClass import File
-
 
 #'5885469589',
 WeiboId_list = ('5261878873','5885469589','2691260383','5360104594','5842071290')
@@ -26,6 +25,10 @@ headers_kidlin = {
             'cookie_user_id':'5885469589',
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0'           
                   }
+
+headers = {
+           'user-agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0',
+           }
 
 headers_list = (headers_luyang,headers_kidlin)
 
@@ -60,7 +63,6 @@ while ret['status']!=3:
     else:
         cot += 1
 '''
-
 
 while 1: 
     print('error_cot = ',error_cot)

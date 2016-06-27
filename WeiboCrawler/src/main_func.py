@@ -5,11 +5,11 @@ from weiboClass import Weibo
 from userClass import User
 from mytools.stringHandleByMyself import stripWithParamString
 from mytools.emailClass import Email
-
+    
 def CrawlSpecificUserWeibosInfo(userID,headers,db,page):
     page = str(page)
     print('\n+++++++Catch' + userID +'++++++page:'+ page +' ++++')
-    res = db.isExist('user','account_id',userID)
+    res = db.isExist('usercopy','account_id',userID)
     if not res:
         UserCatchCore(headers,userID,db)
     profile_url = 'http://weibo.cn/'+ userID +'/profile?page='+page
@@ -53,7 +53,7 @@ def CrawlSpecificUserWeibosInfo(userID,headers,db,page):
         except Exception as e:
             print(e)
             print('微博保存失败')
-    return ret    
+    return ret
 
     
 def CrawlMyFocusWeibo(headers,db):
@@ -68,7 +68,7 @@ def CrawlMyFocusWeibo(headers,db):
         weiboObj.save_to_db(db)
     
 def UserCatchCore(headers,user_account_id,db,clear_fans_choice=False):
-    res = db.isExist('user','account_id',user_account_id)
+    res = db.isExist('lyAttention','account_id',user_account_id)
     if res:
         print('The user has been saved')
         return
@@ -126,8 +126,13 @@ def fans_page_catch(fans_page_url,headers,db_user):
     except Exception as err:
         print(err)
         
-def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
-    start_page_url = 'http://weibo.cn/'+ userID +'/fans'
+def CrawlSpecificUserFriendsInfo(userID,headers,db,mode=1,start=0,end=100):
+    if mode==1:
+        start_page_url = 'http://weibo.cn/'+ userID +'/fans'
+    elif mode==0:
+        start_page_url = 'http://weibo.cn/'+ userID +'/follow'
+    else:
+        return
     cot = start 
     while cot<end+1:
         print('Page------',cot)
@@ -139,7 +144,14 @@ def CrawlSpecificUserFansInfo(userID,headers,db,start=0,end=100):
 def RemoveFans(fansID,headers):
     removeUrl = 'http://weibo.cn/attention/remove?act=removec&uid='+ fansID +'&rl=1&st=0e83c9'
     requests.get(url=removeUrl,headers=headers)
-    
+
+def PayAttentionUser(userID,headers):
+    attentionUrl = 'http://weibo.cn/attention/add?uid='+ userID +'&rl=1&st=f12bd9'
+    print(attentionUrl)
+    res = requests.get(url=attentionUrl,headers=headers)
+    soup = BeautifulSoup(res.text)
+    print(soup.html.body)
+
 def send_email(author,content,subtype,logObj):
     local_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     sender = '965606089@qq.com'
@@ -148,7 +160,7 @@ def send_email(author,content,subtype,logObj):
     host = 'smtp.qq.com'  
     port = 587
     username = sender
-    password = 'tqannmxzubpsbfjc'   
+    password = 'fcgiwomzdbkjbaij'   
     try:
         emailObj = Email(sender,receiver,subject,content,subtype=subtype,logObj=logObj)
         emailObj.conn_server(host,port)

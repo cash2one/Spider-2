@@ -1,7 +1,6 @@
 import csv
 from subjectClass import Subject
 
-
 def isExistSubject(subjectObj_list,subject_name):
     for subjectObj in subjectObj_list:
         if subject_name == subjectObj.name:
@@ -27,9 +26,9 @@ def parse_csv(subjectObj_list):
             subjectObj_list.append(new_subject_obj) 
         cot += 1    
         
-'-------------main--------'        
+#-------------main--------    
 subjectObj_list = []
-first_subject_obj = Subject('fist_sample')
+first_subject_obj = Subject('first_sample')
 subjectObj_list.append(first_subject_obj)
 parse_csv(subjectObj_list)
 for subjectObj in subjectObj_list:

@@ -21,7 +21,7 @@ def show_in_matplot(chip_trend,name):
     plt.xlim(0,len(chip_trend))
     plt.ylim(0,max+5)
     plt.xlabel('Time')
-    plt.ylabel('Chips')
+    plt.ylabel('Chips($)')
     plt.savefig(name)
     plt.gcf().clear()
     

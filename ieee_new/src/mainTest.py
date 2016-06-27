@@ -1,7 +1,7 @@
 """
     author: Lu Yang
 """
-# coding=utf-8
+# coding:utf-8
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,7 +15,6 @@ from random import randint
 import time
 '''
 def parse_page(http_address):
-    #½âÎöÄ¿Â¼Ò³Ãæ
     '''
     random_port = lambda l, r: randint(l, r)
     port = random_port(9053, 9073)

@@ -2,7 +2,7 @@
 from mytools.emailClass import Email
 import time
 from main_func import *
-from mytools.MyDatabaseClass import MyDatabase
+from MyDatabaseClass import MyDatabase
 from mytools.fileClass import File
 
 
