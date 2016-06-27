@@ -2,12 +2,22 @@
 import smtplib,time
 from email.mime.text import MIMEText  
 from email.header import Header
- 
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+
 class Email(object):
     def __init__(self,sender,receiver,subject,content,logObj,
-                 host='',port=0,username='',password='',subtype='plain'):
+                 host='',port=0,username='',password='',subtype='plain',img_src=None):
         self.logObj = logObj
-        self.msg = MIMEText(content,_subtype=subtype,_charset='utf-8')
+        self.msg = MIMEMultipart('mixed')
+        msgText = MIMEText(content,_subtype=subtype,_charset='utf-8')
+        self.msg.attach(msgText)
+        if img_src:
+            fp = open(img_src,'rb')
+            msgImage = MIMEImage(fp.read())
+            fp.close()
+            msgImage.add_header('Content-ID','<meinv_image.jpg>')
+            self.msg.attach(msgImage)
         self.msg['Subject'] = Header(subject, 'utf-8')
         self.msg['From'] = sender
         self.msg['To'] = receiver

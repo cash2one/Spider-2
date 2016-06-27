@@ -6,20 +6,24 @@ import time
 import random
 
 if __name__=='__main__':
-    spider = SeleniumWeiboCatch()
-    file = open('record.txt','a')
-    spider.login('luyangaini@vip.qq.com','kidlin')
     user_foo = [
-        {'id':'277772655','buffer':None},
-        {'id':'5360104594','buffer':None},
-        {'id':'5842071290','buffer':None},
+        {'id':'277772655','buffer':2},
+        {'id':'5360104594','buffer':1},
+        {'id':'5842071290','buffer':3},
     ]
 
+    spider = SeleniumWeiboCatch()
+    file = open('record.txt')
+    spider.login('luyangaini@vip.qq.com','kidlin')
+    time.sleep(3)
+    spider.get_png()
+
+
+    '''
     def init_success(user_foo):
         for user in user_foo:
             if not user['buffer']:
                 return False
-        print('init_success')
         return True
 
     while(1):
@@ -27,28 +31,42 @@ if __name__=='__main__':
             break
         for user in user_foo:
             if not user['buffer']:
-                user['buffer'] = spider.catch_info(user['id'])[1]
-
+                try:
+                    info = spider.catch_info(user['id'])
+                    if info[0][:2]=='置顶':
+                        user['buffer'] = info[1]
+                    else:
+                        user['buffer'] = info[0]
+                except:
+                    pass
 
     while(1):
-        user = random.choice(user_foo)
-        info = spider.catch_info(user['id'])
-        latest_weibo = info[1]
-        print 'the latest weibo:',latest_weibo
-        if latest_weibo!=user['buffer']:
-            print('DIFF\N:')
-            print 'BACK:',user['buffer']
-            print 'NEW:',latest_weibo
-            user['buffer'] = latest_weibo
-            spider2 = SeleniumWeiboCatch()
-            spider2.get_png(user['id'])
-            spider2.tearDown()
-            subject = 'New Weibo!'
-            content = info[0] + info[1]
-            content += '\nplease check in http://weibo.com/u/'+ user['id'] + '?is_all=1'
-            spider.send_mail(subject,content,file)
-        time.sleep(random.randint(5,10))
-        print('search_again')
+        for user in user_foo:
+            print(user['id'])
+            while(1):
+                info = spider.catch_info(user['id'])
+                if info:
+                   break
+            latest_tweet = ''
+            if info[0][:2]=='置顶':
+                latest_tweet = info[1]
+            else:
+                latest_tweet = info[0]
+            if latest_tweet!=user['buffer']:
+                print('DIFF!!!!!')
+                print ('BACK:',user['buffer'])
+                print ('NEW:',latest_tweet)
+                user['buffer'] = latest_tweet
+                spider.get_png()
+                subject = 'New Weibo!'
+                content = latest_tweet
+                content += '\nplease check in http://weibo.com/u/'+ user['id'] + '?is_all=1'
+                spider.send_mail(subject,content,file)
+            else:
+                print('Same!')
+                print ('BACK and NEW both is:',latest_tweet)
+            time.sleep(random.randint(2,5))
+        print('All users checked.  Search again...\n')
+
     spider.tearDown()
-
-
+    '''

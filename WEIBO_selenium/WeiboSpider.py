@@ -25,10 +25,10 @@ class SeleniumWeiboCatch(object):
         print('login success')
 
 
-    def catch_info(self,userid):
+    def catch_info(self,userID):
         info = []
         browser = self.driver
-        browser.get("http://weibo.com/u/"+ userid +"?is_all=1")
+        browser.get("http://weibo.com/u/"+ userID +"?is_all=1")
         weibo_list = browser.find_elements_by_class_name('WB_cardwrap')
         for weibo in weibo_list:
             content = weibo.find_elements_by_class_name('WB_text')
@@ -61,16 +61,17 @@ class SeleniumWeiboCatch(object):
             port = 587,
             subject=subject+local_time,
             content=content,
-            logObj=log
+            logObj=log,
+            img_src='temp.png'
         )
         emailAI.conn_server()
         emailAI.login(username='luyangaini@vip.qq.com',password='fcgiwomzdbkjbaij')
         emailAI.send()
         emailAI.close()
 
-    def get_png(self,userID):
-        local_time = time.strftime("%H:%M:%S  %Y-%m-%d",time.localtime(time.time()))
-        self.driver.save_screenshot(local_time+".png")
+    def get_png(self):
+        self.driver.find_element_by_xpath('//*[@id="plc_frame"]/div').screenshot('temp.png')
+        #local_time = time.strftime("%H:%M:%S_%Y-%m-%d__",time.localtime(time.time()))
 
 
     def tearDown(self):
