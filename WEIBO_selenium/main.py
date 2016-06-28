@@ -7,19 +7,14 @@ import random
 
 if __name__=='__main__':
     user_foo = [
-        {'id':'277772655','buffer':2},
-        {'id':'5360104594','buffer':1},
-        {'id':'5842071290','buffer':3},
+        {'id':'277772655','buffer':None},
+        {'id':'5360104594','buffer':None},
+        {'id':'5842071290','buffer':None},
     ]
 
     spider = SeleniumWeiboCatch()
     file = open('record.txt')
-    spider.login('luyangaini@vip.qq.com','kidlin')
-    time.sleep(3)
-    spider.get_png()
 
-
-    '''
     def init_success(user_foo):
         for user in user_foo:
             if not user['buffer']:
@@ -57,16 +52,16 @@ if __name__=='__main__':
                 print ('BACK:',user['buffer'])
                 print ('NEW:',latest_tweet)
                 user['buffer'] = latest_tweet
-                spider.get_png()
+                spider2 = SeleniumWeiboCatch()
+                save_name = spider2.get_homepage_screenshot(user['id'])
+                spider2.tearDown()
                 subject = 'New Weibo!'
                 content = latest_tweet
                 content += '\nplease check in http://weibo.com/u/'+ user['id'] + '?is_all=1'
-                spider.send_mail(subject,content,file)
+                spider.send_mail(subject,content,file,save_name)
             else:
                 print('Same!')
                 print ('BACK and NEW both is:',latest_tweet)
             time.sleep(random.randint(2,5))
         print('All users checked.  Search again...\n')
-
     spider.tearDown()
-    '''

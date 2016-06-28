@@ -29,6 +29,7 @@ class SeleniumWeiboCatch(object):
         info = []
         browser = self.driver
         browser.get("http://weibo.com/u/"+ userID +"?is_all=1")
+        time.sleep(3)
         weibo_list = browser.find_elements_by_class_name('WB_cardwrap')
         for weibo in weibo_list:
             content = weibo.find_elements_by_class_name('WB_text')
@@ -52,7 +53,7 @@ class SeleniumWeiboCatch(object):
         #print weibo_id,content
         return content
 
-    def send_mail(self,subject,content,log):
+    def send_mail(self,subject,content,log,img_src):
         local_time = time.strftime("%H:%M:%S  %Y-%m-%d",time.localtime(time.time()))
         emailAI = Email(
             receiver='965606089@qq.com',
@@ -62,17 +63,23 @@ class SeleniumWeiboCatch(object):
             subject=subject+local_time,
             content=content,
             logObj=log,
-            img_src='temp.png'
+            img_src=img_src,
         )
         emailAI.conn_server()
         emailAI.login(username='luyangaini@vip.qq.com',password='fcgiwomzdbkjbaij')
         emailAI.send()
         emailAI.close()
 
-    def get_png(self):
-        self.driver.find_element_by_xpath('//*[@id="plc_frame"]/div').screenshot('temp.png')
-        #local_time = time.strftime("%H:%M:%S_%Y-%m-%d__",time.localtime(time.time()))
-
+    def get_homepage_screenshot(self,userID):
+        self.driver.get("http://weibo.com/u/"+ userID +"?is_all=1")
+        self.driver.set_window_size(height=1050,width=1000)
+        time.sleep(2)
+        ele = self.driver.find_element_by_xpath('//*[@id="plc_main"]')
+        ele.location_once_scrolled_into_view
+        local_time = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
+        name = 'Screenshots/'+local_time+'.png'
+        self.driver.save_screenshot(name)
+        return name
 
     def tearDown(self):
         self.driver.close()
