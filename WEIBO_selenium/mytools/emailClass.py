@@ -6,9 +6,8 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 
 class Email(object):
-    def __init__(self,sender,receiver,subject,content,logObj,
+    def __init__(self,sender,receiver,subject,content,
                  host='',port=0,username='',password='',subtype='plain',img_src=None):
-        self.logObj = logObj
         self.msg = MIMEMultipart('mixed')
         msgText = MIMEText(content,_subtype=subtype,_charset='utf-8')
         self.msg.attach(msgText)
@@ -48,9 +47,6 @@ class Email(object):
             self.smtp.login(username, password)
             log_string = self.username+'登陆成功'+'\n'
             print(log_string)
-            self.logObj.open()
-            self.logObj.write(log_string)
-            self.logObj.close()
         except Exception as e:
             print('login():',e)
     
@@ -59,10 +55,6 @@ class Email(object):
             self.smtp.sendmail(self.sender, self.receiver, self.msg.as_string())
             log_string = '邮件已投至'+self.receiver+'\n'
             print(log_string)
-            now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-            self.logObj.open()
-            self.logObj.write(log_string+now+'\n\n')
-            self.logObj.close()
         except Exception as e:
             print('send():',e)
     
