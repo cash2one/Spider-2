@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 
 class Email(object):
     def __init__(self,sender,receiver,subject,content,
-                 host='',port=0,username='',password='',subtype='plain',img_src=None):
+                 host=None,port=0,subtype='plain',img_src=None):
         self.msg = MIMEMultipart('mixed')
         msgText = MIMEText(content,_subtype=subtype,_charset='utf-8')
         self.msg.attach(msgText)
@@ -15,15 +15,13 @@ class Email(object):
             fp = open(img_src,'rb')
             msgImage = MIMEImage(fp.read())
             fp.close()
-            msgImage.add_header('Content-ID','<meinv_image.jpg>')
+            msgImage.add_header('Content-ID','<meinv_image.png>')
             self.msg.attach(msgImage)
         self.msg['Subject'] = Header(subject, 'utf-8')
         self.msg['From'] = sender
         self.msg['To'] = receiver
         self.sender = sender
         self.receiver = receiver
-        self.username = username
-        self.password = password
         self.host = host
         self.port = port
         self.smtp = smtplib.SMTP()
@@ -39,13 +37,10 @@ class Email(object):
         except Exception as e:
             print('conn_server():',e)
                 
-    def login(self,username='',password=''):
-        if self.username is '' and self.password is '':
-            self.username = username
-            self.password = password
+    def login(self,username,password):
         try:
             self.smtp.login(username, password)
-            log_string = self.username+'登陆成功'+'\n'
+            log_string = username+'登陆成功'+'\n'
             print(log_string)
         except Exception as e:
             print('login():',e)
