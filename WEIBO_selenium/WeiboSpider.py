@@ -17,6 +17,7 @@ class SeleniumWeiboCatch(Thread):
             delta = user['index']*width
             height = 500
         else:
+            #没写user时是单纯为捕获图片
             delta = 0
             width = 800
             height = 800
@@ -26,10 +27,9 @@ class SeleniumWeiboCatch(Thread):
         self.user = user
 
     def run(self):
-        print(self.user['id']+': '+'已分配得到进程')
+        print(self.user['id']+': '+'已分配得到线程')
         self.load_info_first()
         while(1):
-            time.sleep(3)
             info = []
             while(1):
                 info = self.catch_info()
@@ -46,7 +46,7 @@ class SeleniumWeiboCatch(Thread):
                     print (self.user['id']+': '+'Same!BACK and NEW both is: '+latest_tweet)
                 except:
                     print (self.user['id']+': '+'Same!BACK and NEW both is:_____ Sorry,Encoding Error!____')
-
+            time.sleep(random.randint(2,4))
 
     def load_info_first(self):
         print(self.user['id']+': '+'正在初始化信息')
@@ -72,13 +72,12 @@ class SeleniumWeiboCatch(Thread):
         print (self.user['id']+': '+'BACK:'+self.user['buffer'])
         print (self.user['id']+': '+'NEW:'+latest_tweet)
         self.user['buffer'] = latest_tweet
-        spider2 = SeleniumWeiboCatch(self.user)
+        spider2 = SeleniumWeiboCatch(user=self.user)
         save_name = spider2.get_homepage_screenshot()
         spider2.tearDown()
         subject = self.user['id']+'发新微博了!'
         content = latest_tweet
         content += '\nplease check in http://weibo.com/u/'+ self.user['id'] + '?is_all=1'
-        file = open('record.txt')
         self.send_mail(subject,content,save_name)
 
 
@@ -140,7 +139,7 @@ class SeleniumWeiboCatch(Thread):
             img_src=img_src,
         )
         emailAI.conn_server()
-        emailAI.login(username='luyangaini@vip.qq.com',password='fcgiwomzdbkjbaij')
+        emailAI.login(username='luyangaini@vip.qq.com',password='ptpkfdscqjkfbehe')
         emailAI.send()
         emailAI.close()
 
